@@ -1,8 +1,10 @@
 (function () {
     "use strict";
 
-    const attackDice = "4w";
-    doRolls('a', attackDice);
+    console.log("Commence Stormtrooper Attack Rolls:")
+    doRolls('a', "4w");
+    console.log("Commence Battle Droid Defense Rolls:");
+    doRolls('d', "6w");
 })();
 
 function doRolls(rollType, dice){
@@ -11,8 +13,10 @@ function doRolls(rollType, dice){
         for (let step = 0; step < roll.length; step++){
             rollAttack(roll[step]);
         }
-    } else {
-
+    } else if (rollType.toLowerCase() == "d") {
+        for (let step = 0; step < roll.length; step++){
+            rollDefense(roll[step]);
+        }
     }
 }
 
@@ -27,9 +31,29 @@ function translateDicePool(rollList){
     return result;
 }
 
+function rollDxDice(sides){
+    return 1 + Math.floor(Math.random() * sides);
+}
+
+function rollDefense(dice){
+    result = rollDxDice(6);
+    if (result == 1){
+        console.log("Surge");
+    } else {
+        switch (dice.toLowerCase()){
+            case 'r':
+                if (result <= 4) console.log("Block");
+                else console.log("Blank");
+                break;
+            case 'w':
+                if (result == 2) console.log("Block");
+                else console.log("Blank")
+        }
+    }
+}
+
 function rollAttack(dice){
-    sides = 8;
-    result = 1 + Math.floor(Math.random() * sides);
+    result = rollDxDice(8);
     switch (dice.toLowerCase()){
         case 'r':
             if (result === 1){
