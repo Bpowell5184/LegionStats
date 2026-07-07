@@ -37,9 +37,8 @@ function rollDxDice(sides){
 
 function rollDefense(dice){
     result = rollDxDice(6);
-    if (result == 1){
-        console.log("Surge");
-    } else {
+    if (result == 1) console.log("Surge");
+    else {
         switch (dice.toLowerCase()){
             case 'r':
                 if (result <= 4) console.log("Block");
@@ -54,39 +53,22 @@ function rollDefense(dice){
 
 function rollAttack(dice){
     result = rollDxDice(8);
-    switch (dice.toLowerCase()){
-        case 'r':
-            if (result === 1){
-                console.log("Crit");
-            } else if (result <= 6){
-                console.log("Hit");
-            } else if (result === 7){
-                console.log("Surge");
-            } else {
-                console.log("Blank");
-            }
-            break;
-        case 'b':
-            if (result === 1){
-                console.log("Crit");
-            } else if (result <= 4){
-                console.log("Hit");
-            } else if (result === 7){
-                console.log("Surge");
-            } else {
-                console.log("Blank");
-            }
-            break;
-        case 'w':
-            if (result === 1){
-                console.log("Crit");
-            } else if (result === 2){
-                console.log("Hit");
-            } else if (result === 7){
-                console.log("Surge");
-            } else {
-                console.log("Blank");
-            }
-            break;
+    if (result == 1) console.log("Crit");
+    else if (result == 7) console.log("Surge");
+    else {
+        switch (dice.toLowerCase()){
+            case 'r':
+                if (result <= 6) console.log("Hit");
+                else console.log("Blank");
+                break;
+            case 'b':
+                if (result <= 4) console.log("Hit");
+                else console.log("Blank");
+                break;
+            case 'w':
+                if (result === 2) console.log("Hit"); 
+                else console.log("Blank");
+                break;
+        }
     }
 }
