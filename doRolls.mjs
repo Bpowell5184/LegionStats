@@ -29,19 +29,21 @@ function rollDxDice(sides){
 }
 
 function rollDefense(dice){
+    const rollArray = [];
     const result = rollDxDice(6);
-    if (result == 1) console.log("Surge");
+    if (result == 1) rollArray.push("Surge");
     else {
         switch (dice.toLowerCase()){
             case 'r':
-                if (result <= 4) console.log("Block");
-                else console.log("Blank");
+                if (result <= 4) rollArray.push("Block");
+                else rollArray.push("Blank");
                 break;
             case 'w':
-                if (result == 2) console.log("Block");
-                else console.log("Blank");
+                if (result == 2) rollArray.push("Block");
+                else rollArray.push("Blank");
         }
     }
+    return rollArray;
 }
 
 function rollAttack(dice){
