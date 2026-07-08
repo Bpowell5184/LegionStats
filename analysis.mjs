@@ -7,7 +7,7 @@ let text =
         "AttackDice":"w", 
         "DefenseDice":"r"
     }, 
-    "B1 Battle Droids": {
+    "B1 Battle Droid": {
         "Models": 6, 
         "AttackDice":"w", 
         "DefenseDice":"w"
@@ -16,13 +16,30 @@ let text =
 
 const units = JSON.parse(text);
 
-const StormtrooperAttack = units.Stormtrooper.Models + units.Stormtrooper.AttackDice;
-const StormtrooperDefense = units.Stormtrooper.Models + units.Stormtrooper.DefenseDice;
+const stormtrooper = units.Stormtrooper;
+const battledroid = units["B1 Battle Droid"];
 
-const BattleDroidAttack = units["B1 Battle Droids"].Models + units["B1 Battle Droids"].AttackDice;
-const BattleDroidDefense = units["B1 Battle Droids"].Models + units["B1 Battle Droids"].DefenseDice;
+const StormtrooperAttack = stormtrooper.Models + stormtrooper.AttackDice;
+const StormtrooperDefense = stormtrooper.Models + stormtrooper.DefenseDice;
 
-console.log("Commence Stormtrooper Attack Rolls:")
-doRolls('a', StormtrooperAttack);
-console.log("Commence Battle Droid Defense Rolls:");
-doRolls('d', BattleDroidAttack);
+const BattleDroidAttack = battledroid.Models + battledroid.AttackDice;
+const BattleDroidDefense = battledroid.Models + battledroid.DefenseDice;
+
+// 0 is storms, 1 is b1s
+let gameState = 0
+if (gameState == 0) {
+    const rollArray = doRolls('a', StormtrooperAttack);
+    rollArray.forEach(item => console.log(item));
+}
+/*while (stormtrooper.Models > 0 || battledroid.Models > 0){
+    if (gameState == 0) {
+        const rollArray = doRolls('a', StormtrooperAttack);
+        rollArray.forEach(item => console.log(item));
+    }
+}*/
+
+
+//console.log("Commence Stormtrooper Attack Rolls:");
+//doRolls('a', StormtrooperAttack);
+//console.log("Commence Battle Droid Defense Rolls:");
+//doRolls('d', BattleDroidAttack);
