@@ -1,4 +1,5 @@
 import { doRolls } from "./doRolls.mjs";
+import { setTimeout } from "timers/promises";
 
 let text = 
 `{
@@ -29,16 +30,24 @@ let gameState = 0
 let rollArray = [];
 if (gameState == 0) {
     rollArray = doRolls('a', StormtrooperAttack);
+    await setTimeout(1000); // 1 second 
     console.log(`Roll Array is ${rollArray}`);
     const paint = convertPaint(rollArray, stormtrooper.SurgeAttack, "a");
+    await setTimeout(1000);
     console.log(`Paint amount is ${paint}`);
 
     const BattleDroidDefense = paint + battledroid.DefenseDice;
     rollArray = doRolls('d', BattleDroidDefense);
+    await setTimeout(1000);
     console.log(`Roll Array is ${rollArray}`);
     const paintb1 = convertPaint(rollArray, battledroid.SurgeDefense, "d");
+    await setTimeout(1000);
     console.log(`Paint amount is ${paintb1}`);
-
+    await setTimeout(1000);
+    let wounds = calculateWounds(paint, paintb1)
+    console.log(`Wounds suffered are: ${wounds}`)
+    stormtrooper.Models = stormtrooper.Models - wounds;
+    console.log(`New Model Count is: ${stormtrooper.Models}`);
 }
 
 function convertPaint(rolls, surgeProfile, rollType){
@@ -71,4 +80,8 @@ function convertDefensePaint(rolls, surgeProfile){
         }
     } 
     return paint; 
+}
+
+function calculateWounds(attackPaint, defendingPaint){
+    return attackPaint - defendingPaint < 0 ? 0 : attackPaint - defendingPaint;
 }
