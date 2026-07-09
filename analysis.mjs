@@ -20,21 +20,29 @@ let text =
     }
 }`
 
-const waitTime = 10 // 1000 = 1 second
+const waitTime = 0 // 1000 = 1 second
+
+let unitOneWins = 0;
+let unitTwoWins = 0;
+
+const unitOneName = "Stormtrooper";
+const unitTwoName = "B1 Battle Droid";
 
 let currentRun = 0;
-const numberOfRuns = 5;
+const numberOfRuns = 100;
 
 while (currentRun < numberOfRuns){
     const units = JSON.parse(text);
-    const stormtrooper = units.Stormtrooper;
-    const battledroid = units["B1 Battle Droid"];
+    const unitOne = getUnit(units, unitOneName);
+    const unitTwo = getUnit(units, unitTwoName);
     const fileLocation = createFileNum();
-    doRun(fileLocation, stormtrooper, battledroid, units);
+    await doRun(fileLocation, unitOne, unitTwo, units);
     currentRun++;
 }
 
-
+const totalMatches = unitOneWins + unitTwoWins;
+console.log(`${unitOneName} Winrate: ${unitOneWins/totalMatches}`);
+console.log(`${unitTwoName} Winrate: ${unitTwoWins/totalMatches}`);
 
 async function doRun(fileLocation, unitOne, unitTwo, units){
     // 0 is storms, 1 is b1s
@@ -42,47 +50,47 @@ async function doRun(fileLocation, unitOne, unitTwo, units){
     let rollArray = [];
     while (unitOne.Models > 0 && unitTwo.Models > 0){
         if (gameState == 0){
-            writeToFile("Stormtroopers are attacking!", fileLocation);
+            writeToFile(`${unitOne.name} are attacking!`, fileLocation);
             const unitOneAttack = unitOne.Models + unitOne.AttackDice;
             rollArray = doRolls('a', unitOneAttack);
             await setTimeout(waitTime);
             writeToFile(`Roll Array is ${rollArray}`, fileLocation);
-            const paint = convertPaint(rollArray, unitOne.SurgeAttack, "a");
+            const unitOnePaint = convertPaint(rollArray, unitOne.SurgeAttack, "a");
             await setTimeout(waitTime);
-            writeToFile(`Paint amount is ${paint}`, fileLocation);
+            writeToFile(`Paint amount is ${unitOnePaint}`, fileLocation);
 
-            const unitTwoDefense = paint + unitTwo.DefenseDice;
+            const unitTwoDefense = unitOnePaint + unitTwo.DefenseDice;
             rollArray = doRolls('d', unitTwoDefense);
             await setTimeout(waitTime);
             writeToFile(`Roll Array is ${rollArray}`, fileLocation);
-            const paintb1 = convertPaint(rollArray, unitTwo.SurgeDefense, "d");
+            const unitTwoPaint = convertPaint(rollArray, unitTwo.SurgeDefense, "d");
             await setTimeout(waitTime);
-            writeToFile(`Paint amount is ${paintb1}`, fileLocation);
+            writeToFile(`Paint amount is ${unitTwoPaint}`, fileLocation);
             await setTimeout(waitTime);
-            let wounds = calculateWounds(paint, paintb1)
+            let wounds = calculateWounds(unitOnePaint, unitTwoPaint);
             writeToFile(`Wounds suffered are: ${wounds}`, fileLocation);
             unitTwo.Models = unitTwo.Models - wounds;
             writeToFile(`New Model Count is: ${unitTwo.Models}`, fileLocation);
             gameState = 1;
         } else if (gameState == 1){
-            writeToFile("Battle Droids are attacking!", fileLocation);
+            writeToFile(`${unitTwo.name} are attacking!`, fileLocation);
             const unitTwoAttack = unitTwo.Models + unitTwo.AttackDice;
             rollArray = doRolls('a', unitTwoAttack);
             await setTimeout(waitTime);
             writeToFile(`Roll Array is ${rollArray}`, fileLocation);
-            const paint = convertPaint(rollArray, unitTwo.SurgeAttack, "a");
+            const unitTwoPaint = convertPaint(rollArray, unitTwo.SurgeAttack, "a");
             await setTimeout(waitTime);
-            writeToFile(`Paint amount is ${paint}`, fileLocation);
+            writeToFile(`Paint amount is ${unitTwoPaint}`, fileLocation);
 
-            const unitOneDefense = paint + unitOne.DefenseDice;
+            const unitOneDefense = unitTwoPaint + unitOne.DefenseDice;
             rollArray = doRolls('d', unitOneDefense);
             await setTimeout(waitTime);
             writeToFile(`Roll Array is ${rollArray}`, fileLocation);
-            const paintstorm = convertPaint(rollArray, unitOne.SurgeDefense, "d");
+            const unitOnePaint = convertPaint(rollArray, unitOne.SurgeDefense, "d");
             await setTimeout(waitTime);
-            writeToFile(`Paint amount is ${paintstorm}`, fileLocation);
+            writeToFile(`Paint amount is ${unitOnePaint}`, fileLocation);
             await setTimeout(waitTime);
-            let wounds = calculateWounds(paint, paintstorm)
+            let wounds = calculateWounds(unitTwoPaint, unitOnePaint)
             writeToFile(`Wounds suffered are: ${wounds}`, fileLocation);
             unitOne.Models = unitOne.Models - wounds;
             writeToFile(`New Model Count is: ${unitOne.Models}`, fileLocation);
@@ -92,15 +100,21 @@ async function doRun(fileLocation, unitOne, unitTwo, units){
 
     console.log("Game concluded!");
     if (unitOne.Models <= 0){
-        console.log("Battle droids Win!");
+        console.log("Battle Droids Win!");
         writeToFile(`Battle Droids Win!`, fileLocation);
+        unitTwoWins++;
     } else if (unitTwo.Models <= 0){
         console.log("Stormtroopers Win!");
         writeToFile(`Stormtroopers Win!`, fileLocation);
+        unitOneWins++;
     } else {
         console.log("Draw!");
         writeToFile(`Draw!`, fileLocation);
     }
+}
+
+function getUnit(units, name){
+    return { name, ...units[name] };
 }
 
 function writeToFile(message, location){
