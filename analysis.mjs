@@ -29,14 +29,22 @@ const unitOneName = "Stormtrooper";
 const unitTwoName = "B1 Battle Droid";
 
 let currentRun = 0;
-const numberOfRuns = 100;
+const numberOfRuns = 100000;
+
+const numLogs = 10;
+
+const logNum = 10;
+
+const basefileNum = createFileNum();
+let fileLocation = basefileNum;
 
 while (currentRun < numberOfRuns){
     const units = JSON.parse(text);
     const unitOne = getUnit(units, unitOneName);
     const unitTwo = getUnit(units, unitTwoName);
-    const fileLocation = createFileNum();
-    await doRun(fileLocation, unitOne, unitTwo, units);
+    fileLocation++;
+    if (currentRun % (numberOfRuns/logNum) == 0) doRunLog(fileLocation, unitOne, unitTwo, units);
+    else doRun(fileLocation, unitOne, unitTwo, units);
     currentRun++;
 }
 
@@ -44,7 +52,42 @@ const totalMatches = unitOneWins + unitTwoWins;
 console.log(`${unitOneName} Winrate: ${unitOneWins/totalMatches}`);
 console.log(`${unitTwoName} Winrate: ${unitTwoWins/totalMatches}`);
 
-async function doRun(fileLocation, unitOne, unitTwo, units){
+function doRun(fileLocation, unitOne, unitTwo, units){
+    // 0 is storms, 1 is b1s
+    let gameState = 0
+    let rollArray = [];
+    while (unitOne.Models > 0 && unitTwo.Models > 0){
+        if (gameState == 0){
+            const unitOneAttack = unitOne.Models + unitOne.AttackDice;
+            rollArray = doRolls('a', unitOneAttack);
+            const unitOnePaint = convertPaint(rollArray, unitOne.SurgeAttack, "a");
+            const unitTwoDefense = unitOnePaint + unitTwo.DefenseDice;
+            rollArray = doRolls('d', unitTwoDefense);
+            const unitTwoPaint = convertPaint(rollArray, unitTwo.SurgeDefense, "d");
+            let wounds = calculateWounds(unitOnePaint, unitTwoPaint);
+            unitTwo.Models = unitTwo.Models - wounds;
+            gameState = 1;
+        } else if (gameState == 1){
+            const unitTwoAttack = unitTwo.Models + unitTwo.AttackDice;
+            rollArray = doRolls('a', unitTwoAttack);
+            const unitTwoPaint = convertPaint(rollArray, unitTwo.SurgeAttack, "a");
+            const unitOneDefense = unitTwoPaint + unitOne.DefenseDice;
+            rollArray = doRolls('d', unitOneDefense);
+            const unitOnePaint = convertPaint(rollArray, unitOne.SurgeDefense, "d");
+            let wounds = calculateWounds(unitTwoPaint, unitOnePaint)
+            unitOne.Models = unitOne.Models - wounds;
+            gameState = 0;
+        }
+    }
+
+    if (unitOne.Models <= 0){
+        unitTwoWins++;
+    } else if (unitTwo.Models <= 0){
+        unitOneWins++;
+    }
+}
+
+function doRunLog(fileLocation, unitOne, unitTwo, units){
     // 0 is storms, 1 is b1s
     let gameState = 0
     let rollArray = [];
@@ -53,20 +96,14 @@ async function doRun(fileLocation, unitOne, unitTwo, units){
             writeToFile(`${unitOne.name} are attacking!`, fileLocation);
             const unitOneAttack = unitOne.Models + unitOne.AttackDice;
             rollArray = doRolls('a', unitOneAttack);
-            await setTimeout(waitTime);
             writeToFile(`Roll Array is ${rollArray}`, fileLocation);
             const unitOnePaint = convertPaint(rollArray, unitOne.SurgeAttack, "a");
-            await setTimeout(waitTime);
             writeToFile(`Paint amount is ${unitOnePaint}`, fileLocation);
-
             const unitTwoDefense = unitOnePaint + unitTwo.DefenseDice;
             rollArray = doRolls('d', unitTwoDefense);
-            await setTimeout(waitTime);
             writeToFile(`Roll Array is ${rollArray}`, fileLocation);
             const unitTwoPaint = convertPaint(rollArray, unitTwo.SurgeDefense, "d");
-            await setTimeout(waitTime);
             writeToFile(`Paint amount is ${unitTwoPaint}`, fileLocation);
-            await setTimeout(waitTime);
             let wounds = calculateWounds(unitOnePaint, unitTwoPaint);
             writeToFile(`Wounds suffered are: ${wounds}`, fileLocation);
             unitTwo.Models = unitTwo.Models - wounds;
@@ -76,20 +113,14 @@ async function doRun(fileLocation, unitOne, unitTwo, units){
             writeToFile(`${unitTwo.name} are attacking!`, fileLocation);
             const unitTwoAttack = unitTwo.Models + unitTwo.AttackDice;
             rollArray = doRolls('a', unitTwoAttack);
-            await setTimeout(waitTime);
             writeToFile(`Roll Array is ${rollArray}`, fileLocation);
             const unitTwoPaint = convertPaint(rollArray, unitTwo.SurgeAttack, "a");
-            await setTimeout(waitTime);
             writeToFile(`Paint amount is ${unitTwoPaint}`, fileLocation);
-
             const unitOneDefense = unitTwoPaint + unitOne.DefenseDice;
             rollArray = doRolls('d', unitOneDefense);
-            await setTimeout(waitTime);
             writeToFile(`Roll Array is ${rollArray}`, fileLocation);
             const unitOnePaint = convertPaint(rollArray, unitOne.SurgeDefense, "d");
-            await setTimeout(waitTime);
             writeToFile(`Paint amount is ${unitOnePaint}`, fileLocation);
-            await setTimeout(waitTime);
             let wounds = calculateWounds(unitTwoPaint, unitOnePaint)
             writeToFile(`Wounds suffered are: ${wounds}`, fileLocation);
             unitOne.Models = unitOne.Models - wounds;
@@ -97,18 +128,13 @@ async function doRun(fileLocation, unitOne, unitTwo, units){
             gameState = 0;
         }
     }
-
-    console.log("Game concluded!");
     if (unitOne.Models <= 0){
-        console.log("Battle Droids Win!");
         writeToFile(`Battle Droids Win!`, fileLocation);
         unitTwoWins++;
     } else if (unitTwo.Models <= 0){
-        console.log("Stormtroopers Win!");
         writeToFile(`Stormtroopers Win!`, fileLocation);
         unitOneWins++;
     } else {
-        console.log("Draw!");
         writeToFile(`Draw!`, fileLocation);
     }
 }
@@ -118,13 +144,13 @@ function getUnit(units, name){
 }
 
 function writeToFile(message, location){
-    fs.appendFile(`./logs/battle_${location}`, message+'\n', err => {
-        if (err) {
-            console.error(err);
-        } else {
+        fs.appendFile(`./logs/battle_${location}`, message+'\n', err => {
+            if (err) {
+                console.error(err);
+            } else {
 
-        }
-    });
+            }
+        });
 }
 
 function createFileNum(){
