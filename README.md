@@ -1,2 +1,4 @@
 # LegionInventory
-A Web Application meant to handle inventory management for tabletop wargame Star Wars Legion
+LegionStats is a web application designed with HTML, Javascript, and CSS, meant to simulate Star Wars: Legion games, determine unit winrates, and design better lists. 
+
+** Currently Under Construction **
