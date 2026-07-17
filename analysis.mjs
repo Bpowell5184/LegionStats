@@ -21,36 +21,36 @@ let text =
 }`
 
 const waitTime = 0 // 1000 = 1 second
-
 let unitOneWins = 0;
 let unitTwoWins = 0;
-
 const unitOneName = "Stormtrooper";
 const unitTwoName = "B1 Battle Droid";
-
 let currentRun = 0;
 const numberOfRuns = 100000;
-
-const numLogs = 10;
-
-const logNum = 10;
-
+const logNum = 0;
 const basefileNum = createFileNum();
 let fileLocation = basefileNum;
 
-while (currentRun < numberOfRuns){
-    const units = JSON.parse(text);
-    const unitOne = getUnit(units, unitOneName);
-    const unitTwo = getUnit(units, unitTwoName);
-    fileLocation++;
-    if (currentRun % (numberOfRuns/logNum) == 0) doRunLog(fileLocation, unitOne, unitTwo, units);
-    else doRun(fileLocation, unitOne, unitTwo, units);
-    currentRun++;
+runProgram();
+
+function runProgram(){
+    while (currentRun < numberOfRuns){
+        const units = JSON.parse(text);
+        const unitOne = getUnit(units, unitOneName);
+        const unitTwo = getUnit(units, unitTwoName);
+        if (currentRun % (numberOfRuns/logNum) == 0) {
+            fileLocation++;
+            doRunLog(fileLocation, unitOne, unitTwo, units);
+        } 
+        else doRun(fileLocation, unitOne, unitTwo, units);
+        currentRun++;
+    }
+    const totalMatches = unitOneWins + unitTwoWins;
+    console.log(`${unitOneName} Winrate: ${unitOneWins/totalMatches}`);
+    console.log(`${unitTwoName} Winrate: ${unitTwoWins/totalMatches}`);
 }
 
-const totalMatches = unitOneWins + unitTwoWins;
-console.log(`${unitOneName} Winrate: ${unitOneWins/totalMatches}`);
-console.log(`${unitTwoName} Winrate: ${unitTwoWins/totalMatches}`);
+
 
 function doRun(fileLocation, unitOne, unitTwo, units){
     let gameState = 0;
@@ -153,7 +153,7 @@ function createFileNum(){
     .map(match => Number(match[1]));
 
     const max = numbers.length ? Math.max(...numbers) : -1;
-    return max+1;
+    return max;
 }
 
 function convertPaint(rolls, surgeProfile, rollType){
